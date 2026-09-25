@@ -17,8 +17,10 @@ import {
   Building2,
   Settings,
   Users,
+  BookOpen,
 } from 'lucide-react';
 import { useUIProperties } from '@/components/UIPropertiesProvider';
+import RulesGuidelinesModal from '@/components/RulesGuidelinesModal';
 
 interface NavbarProps {
   user: Profile | null;
@@ -35,6 +37,7 @@ export default function Navbar({
 }: NavbarProps) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [rulesOpen, setRulesOpen] = useState(false);
   const isAdmin = user?.role === 'admin';
   const { nav } = useUIProperties();
 
@@ -116,6 +119,15 @@ export default function Navbar({
                   </Link>
                 );
               })}
+
+              <button
+                type="button"
+                onClick={() => setRulesOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100/70 transition-all cursor-pointer"
+              >
+                <BookOpen className="w-4 h-4 text-emerald-600" />
+                <span>Rules</span>
+              </button>
 
               {isAdmin && (
                 <div className="ml-2 pl-3 border-l border-slate-200 flex items-center gap-1">
@@ -244,6 +256,18 @@ export default function Navbar({
                 {item.label}
               </Link>
             ))}
+
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                setRulesOpen(true);
+              }}
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 text-left"
+            >
+              <BookOpen className="w-4 h-4 text-emerald-600" />
+              <span>Rules & Guidelines</span>
+            </button>
           </div>
 
           {isAdmin && (
@@ -270,6 +294,13 @@ export default function Navbar({
           )}
         </div>
       )}
+
+      {/* Rules & Guidelines Modal */}
+      <RulesGuidelinesModal
+        isOpen={rulesOpen}
+        onClose={() => setRulesOpen(false)}
+        canDismissDirectly={true}
+      />
     </header>
   );
 }
