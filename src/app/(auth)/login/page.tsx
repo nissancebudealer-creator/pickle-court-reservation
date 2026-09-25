@@ -50,22 +50,48 @@ function LoginForm() {
     setLoading(true);
     setError(null);
 
-    const formData = new FormData();
-    formData.append('email', email);
-    formData.append('password', password);
-    formData.append('redirectTo', redirectTo);
-
     try {
-      const res = await loginAction(formData);
-      if (res.error) {
-        setError(res.error);
+      const supabase = createClient();
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+
+      if (signInError) {
+        setError(signInError.message);
         setLoading(false);
-      } else if (res.success) {
-        router.push(res.redirectTo || '/dashboard');
+        return;
+      }
+
+      if (data.user) {
+        // Check if account is deactivated
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('status, role')
+          .eq('id', data.user.id)
+          .single();
+
+        if (profile?.status === 'Deactivated') {
+          await supabase.auth.signOut();
+          setError('Your employee account has been deactivated. Please contact Facilities & HR.');
+          setLoading(false);
+          return;
+        }
+
+        // Also sync server action in background for server-side cookies
+        const formData = new FormData();
+        formData.append('email', email);
+        formData.append('password', password);
+        formData.append('redirectTo', redirectTo);
+        await loginAction(formData).catch(() => {});
+
+        // Direct navigation
+        const target = profile?.role === 'admin' && redirectTo === '/dashboard' ? '/admin' : redirectTo;
+        router.push(target);
         router.refresh();
       }
     } catch (err: any) {
-      setError(err.message || 'Login failed.');
+      setError(err?.message || 'Login failed.');
       setLoading(false);
     }
   };
