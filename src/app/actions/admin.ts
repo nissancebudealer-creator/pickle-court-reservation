@@ -672,6 +672,8 @@ export async function updateSystemSettingsAction({
     revalidatePath('/dashboard');
     revalidatePath('/admin');
     revalidatePath('/admin/settings');
+    revalidatePath('/login');
+    revalidatePath('/register');
     return { success: true };
   } catch (err: any) {
     return { error: err.message || 'Failed to update settings.' };

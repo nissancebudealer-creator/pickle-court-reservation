@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { registerAction } from '@/app/actions/auth';
+import { registerAction, getPublicSettingsAction } from '@/app/actions/auth';
 import { UserPlus, AlertCircle, Loader2, User, Mail, Lock, Phone, Briefcase, UserCheck } from 'lucide-react';
 import { useUIProperties } from '@/components/UIPropertiesProvider';
 import { createClient } from '@/lib/supabase/client';
@@ -22,7 +22,15 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [settings, setSettings] = useState<SystemSettings | null>(null);
+  const [settings, setSettings] = useState<SystemSettings>({
+    id: 1,
+    company_name: 'NISSAN SOUTH',
+    court_brand: '',
+    company_logo_url: 'https://autocentralgroup.com/wp/wp-content/uploads/2021/02/autocentral.png',
+    max_advance_days: 7,
+    max_active_reservations_per_employee: 2,
+    updated_at: new Date().toISOString(),
+  });
 
   React.useEffect(() => {
     if (departments.length > 0 && !departments.includes(department)) {
@@ -31,20 +39,14 @@ export default function RegisterPage() {
   }, [departments]);
 
   React.useEffect(() => {
-    const supabase = createClient();
-    supabase
-      .from('system_settings')
-      .select('*')
-      .eq('id', 1)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data) setSettings(data);
-      });
+    getPublicSettingsAction().then((res) => {
+      if (res?.data) setSettings(res.data);
+    });
   }, []);
 
-  const companyName = settings?.company_name || 'COMPANY';
-  const courtBrand = settings?.court_brand || 'PICKLEBALL';
-  const logoUrl = settings?.company_logo_url;
+  const companyName = settings.company_name?.trim() || 'NISSAN SOUTH';
+  const courtBrand = settings.court_brand?.trim() || '';
+  const logoUrl = settings.company_logo_url?.trim() || 'https://autocentralgroup.com/wp/wp-content/uploads/2021/02/autocentral.png';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,31 +82,44 @@ export default function RegisterPage() {
       <div className="w-full max-w-lg">
         {/* Prominent Company Branding & Logo Header */}
         <div className="text-center mb-8 flex flex-col items-center">
-          <div className="relative mb-4 group">
-            <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-emerald-600 via-green-600 to-teal-700 text-white flex items-center justify-center shadow-xl shadow-emerald-600/30 border-2 border-emerald-400/40 ring-4 ring-emerald-100">
-              <svg
-                className="w-9 h-9"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="12" cy="11" r="8" />
-                <path d="M12 19v3" strokeWidth="2.6" />
-                <path d="M10 22h4" strokeWidth="2.6" />
-                <circle cx="9" cy="9" r="1.2" fill="currentColor" />
-                <circle cx="15" cy="9" r="1.2" fill="currentColor" />
-                <circle cx="12" cy="14" r="1.2" fill="currentColor" />
-                <path d="M4 11h16" strokeDasharray="2 2" strokeWidth="1.5" />
-              </svg>
+          {logoUrl ? (
+            <div className="mb-4 p-3.5 bg-white rounded-2xl shadow-md border border-slate-200/90 inline-flex items-center justify-center transition-all">
+              <img
+                src={logoUrl}
+                alt={`${companyName} Logo`}
+                className="h-20 max-h-24 w-auto max-w-[280px] object-contain"
+                onError={() => {
+                  setSettings(prev => ({ ...prev, company_logo_url: null }));
+                }}
+              />
             </div>
-          </div>
+          ) : (
+            <div className="relative mb-4 group">
+              <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-emerald-600 via-green-600 to-teal-700 text-white flex items-center justify-center shadow-xl shadow-emerald-600/30 border-2 border-emerald-400/40 ring-4 ring-emerald-100">
+                <svg
+                  className="w-9 h-9"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="12" cy="11" r="8" />
+                  <path d="M12 19v3" strokeWidth="2.6" />
+                  <path d="M10 22h4" strokeWidth="2.6" />
+                  <circle cx="9" cy="9" r="1.2" fill="currentColor" />
+                  <circle cx="15" cy="9" r="1.2" fill="currentColor" />
+                  <circle cx="12" cy="14" r="1.2" fill="currentColor" />
+                  <path d="M4 11h16" strokeDasharray="2 2" strokeWidth="1.5" />
+                </svg>
+              </div>
+            </div>
+          )}
 
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 leading-tight">
-              {companyName} <span className="text-emerald-600">{courtBrand}</span>
+              {companyName} {courtBrand ? <span className="text-emerald-600">{courtBrand}</span> : null}
             </h1>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold tracking-wider uppercase border border-emerald-300">
               <span>{label('registration_header', 'STAFF REGISTRATION PORTAL')}</span>

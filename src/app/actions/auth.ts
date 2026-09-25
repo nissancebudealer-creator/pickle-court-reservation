@@ -124,3 +124,33 @@ export async function logoutAction() {
   }
   redirect('/login');
 }
+
+export async function getPublicSettingsAction() {
+  try {
+    const { createAdminClient } = await import('@/lib/supabase/admin');
+    const adminSupabase = createAdminClient();
+    const { data } = await adminSupabase
+      .from('system_settings')
+      .select('*')
+      .eq('id', 1)
+      .maybeSingle();
+
+    if (data) {
+      return { data };
+    }
+  } catch (err) {
+    console.error('Failed to get public settings:', err);
+  }
+
+  return {
+    data: {
+      id: 1,
+      company_name: 'NISSAN SOUTH',
+      court_brand: '',
+      company_logo_url: 'https://autocentralgroup.com/wp/wp-content/uploads/2021/02/autocentral.png',
+      max_advance_days: 7,
+      max_active_reservations_per_employee: 2,
+      updated_at: new Date().toISOString(),
+    },
+  };
+}

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { loginAction } from '@/app/actions/auth';
+import { loginAction, getPublicSettingsAction } from '@/app/actions/auth';
 import { createClient } from '@/lib/supabase/client';
 import { SystemSettings } from '@/lib/types';
 import { AlertCircle, Loader2, KeyRound, Mail, ShieldCheck } from 'lucide-react';
@@ -23,27 +23,27 @@ function LoginForm() {
     unauthorizedAdmin ? 'Admin portal access requires administrative credentials.' : null
   );
 
-  const [settings, setSettings] = useState<SystemSettings | null>(null);
+  const [settings, setSettings] = useState<SystemSettings>({
+    id: 1,
+    company_name: 'NISSAN SOUTH',
+    court_brand: '',
+    company_logo_url: 'https://autocentralgroup.com/wp/wp-content/uploads/2021/02/autocentral.png',
+    max_advance_days: 7,
+    max_active_reservations_per_employee: 2,
+    updated_at: new Date().toISOString(),
+  });
 
   useEffect(() => {
-    try {
-      const supabase = createClient();
-      supabase
-        .from('system_settings')
-        .select('*')
-        .eq('id', 1)
-        .maybeSingle()
-        .then(({ data }) => {
-          if (data) setSettings(data);
-        });
-    } catch (err) {
-      console.warn('Could not fetch settings', err);
-    }
+    getPublicSettingsAction().then((res) => {
+      if (res?.data) {
+        setSettings(res.data);
+      }
+    });
   }, []);
 
-  const companyName = settings?.company_name || 'COMPANY';
-  const courtBrand = settings?.court_brand || 'PICKLEBALL';
-  const logoUrl = settings?.company_logo_url;
+  const companyName = settings.company_name?.trim() || 'NISSAN SOUTH';
+  const courtBrand = settings.court_brand?.trim() || '';
+  const logoUrl = settings.company_logo_url?.trim() || 'https://autocentralgroup.com/wp/wp-content/uploads/2021/02/autocentral.png';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,11 +102,14 @@ function LoginForm() {
         {/* Prominent Company Branding & Logo Header */}
         <div className="text-center mb-8 flex flex-col items-center">
           {logoUrl ? (
-            <div className="mb-4 p-2 bg-white rounded-2xl shadow-md border border-slate-200">
+            <div className="mb-4 p-3.5 bg-white rounded-2xl shadow-md border border-slate-200/90 inline-flex items-center justify-center transition-all">
               <img
                 src={logoUrl}
                 alt={`${companyName} Logo`}
-                className="h-20 w-auto max-w-[260px] object-contain"
+                className="h-20 max-h-24 w-auto max-w-[280px] object-contain"
+                onError={() => {
+                  setSettings(prev => ({ ...prev, company_logo_url: null }));
+                }}
               />
             </div>
           ) : (
@@ -133,15 +136,15 @@ function LoginForm() {
             </div>
           )}
 
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 leading-tight">
-              {companyName} <span className="text-emerald-600">{courtBrand}</span>
+              {companyName} {courtBrand ? <span className="text-emerald-600">{courtBrand}</span> : null}
             </h1>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold tracking-wider uppercase border border-emerald-300">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
               <span>{label('registration_header', 'EMPLOYEE COURT RESERVATION PORTAL')}</span>
             </div>
-            <p className="text-xs text-slate-500 font-medium pt-1">
+            <p className="text-xs text-slate-500 font-medium pt-0.5">
               {label('facility_subtitle', 'Sports Annex Facilities • Asia/Manila (PHT, UTC+8)')}
             </p>
           </div>
