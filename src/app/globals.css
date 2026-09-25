@@ -7,8 +7,12 @@
   --foreground: #0f172a;
 }
 
-* {
-  font-family: Verdana, Geneva, Tahoma, sans-serif !important;
+body,
+input,
+textarea,
+select,
+button {
+  font-family: "Calibri", "Gill Sans", "Optima", Arial, sans-serif;
 }
 
 body {

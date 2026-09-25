@@ -30,7 +30,7 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ["Verdana", "Geneva", "Tahoma", "sans-serif"],
+        sans: ["Calibri", "Gill Sans", "Optima", "Arial", "sans-serif"],
         mono: ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "monospace"],
       },
     },

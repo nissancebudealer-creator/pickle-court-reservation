@@ -126,7 +126,15 @@ export async function createReservationRequest({
     }
 
     // 5. Policy Enforcement: Check if non-admin user already has an active booking
+    //    Read the limit from system settings so it stays in sync with what admin configures.
     if (profile.role !== 'admin') {
+      const { data: settings } = await supabase
+        .from('system_settings')
+        .select('max_active_reservations_per_employee')
+        .eq('id', 1)
+        .maybeSingle();
+      const maxActive = settings?.max_active_reservations_per_employee ?? 1;
+
       const { count: activeCount } = await supabase
         .from('reservations')
         .select('id', { count: 'exact', head: true })
@@ -134,10 +142,10 @@ export async function createReservationRequest({
         .in('status', ['PENDING', 'CONFIRMED'])
         .gte('reservation_date', todayStr);
 
-      if (activeCount && activeCount >= 1) {
+      if (activeCount !== null && activeCount >= maxActive) {
         return {
           error:
-            'Policy Notice: You already have an active (Pending or Confirmed) court booking. Corporate guidelines permit 1 active booking per employee.',
+            `Policy Notice: You already have ${activeCount} active booking${activeCount > 1 ? 's' : ''} (Pending or Confirmed). Corporate guidelines permit a maximum of ${maxActive} active booking${maxActive > 1 ? 's' : ''} per employee.`,
         };
       }
     }

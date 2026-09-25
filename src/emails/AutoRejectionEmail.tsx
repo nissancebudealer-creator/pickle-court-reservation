@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 interface AutoRejectionEmailProps {
   employeeName: string;
@@ -7,6 +7,7 @@ interface AutoRejectionEmailProps {
   reservationDate: string;
   slotTime: string;
   bookingUrl: string;
+  companyLabel?: string;
 }
 
 export function AutoRejectionEmailHtml({
@@ -16,6 +17,7 @@ export function AutoRejectionEmailHtml({
   reservationDate,
   slotTime,
   bookingUrl,
+  companyLabel = 'Company Pickleball',
 }: AutoRejectionEmailProps): string {
   return `
 <!DOCTYPE html>
@@ -53,7 +55,7 @@ export function AutoRejectionEmailHtml({
     </div>
 
     <div style="background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 16px 32px; text-align: center; font-size: 12px; color: #94a3b8;">
-      © Company Pickleball • Timezone: Asia/Manila (PHT, UTC+8)
+      © ${companyLabel} • Timezone: Asia/Manila (PHT, UTC+8)
     </div>
   </div>
 </body>

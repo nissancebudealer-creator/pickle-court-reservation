@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Court, CourtSlot, Profile, Reservation } from '@/lib/types';
 import { createReservationRequest } from '@/app/actions/reservations';
 import { formatFriendlyDate } from '@/lib/timezone';
+import { useUIProperties } from '@/components/UIPropertiesProvider';
 import {
   X,
   Calendar,
@@ -15,6 +16,7 @@ import {
   CheckCircle2,
   ShieldAlert,
 } from 'lucide-react';
+
 
 interface ConfirmBookingModalProps {
   isOpen: boolean;
@@ -39,6 +41,7 @@ export default function ConfirmBookingModal({
   activeBooking,
   onSuccess,
 }: ConfirmBookingModalProps) {
+  const { label } = useUIProperties();
   const [teammates, setTeammates] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -127,7 +130,7 @@ export default function ConfirmBookingModal({
                 <MapPin className="w-4 h-4" />
               </div>
               <div>
-                <p className="text-xs text-slate-500">Court & Location</p>
+                <p className="text-xs text-slate-500">{label('field_court_location', 'Court & Location')}</p>
                 <p className="text-sm font-bold text-slate-800">
                   {court.name} <span className="text-xs font-normal text-slate-500">({court.location})</span>
                 </p>
@@ -146,7 +149,7 @@ export default function ConfirmBookingModal({
               <div className="flex items-center gap-2.5">
                 <Clock className="w-4 h-4 text-emerald-600" />
                 <div>
-                  <p className="text-[11px] text-slate-500">Operating Time</p>
+                  <p className="text-[11px] text-slate-500">{label('field_operating_time', 'Operating Time')}</p>
                   <p className="text-xs font-bold text-slate-800">{slot.display_label}</p>
                 </div>
               </div>
@@ -163,7 +166,7 @@ export default function ConfirmBookingModal({
               <span className="font-bold text-slate-800">{user.full_name}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-600">Department:</span>
+              <span className="text-slate-600">{label('field_department', 'Department')}:</span>
               <span className="font-semibold text-slate-700">{user.department}</span>
             </div>
             <div className="flex justify-between">
@@ -175,21 +178,27 @@ export default function ConfirmBookingModal({
           {/* Mandatory Teammates Field */}
           <div>
             <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5 flex items-center justify-between">
-              <span>Co-Players / Teammates *</span>
+              <span>{label('field_teammates', 'Co-Players / Teammates')} *</span>
               <span className="text-[11px] text-emerald-600 font-normal">Singles or Doubles</span>
             </label>
             <textarea
               required
               rows={3}
+              maxLength={500}
               value={teammates}
               onChange={(e) => setTeammates(e.target.value)}
               disabled={hasActiveBooking || loading}
-              placeholder="e.g., Mark Ramos (Engineering), Sarah Lim (Marketing), Kevin Tan (HR)"
+              placeholder={label('field_teammates_placeholder', 'e.g., Mark Ramos (Engineering), Sarah Lim (Marketing), Kevin Tan (HR)')}
               className="w-full text-xs rounded-xl border border-slate-300 p-3 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 disabled:bg-slate-100 disabled:text-slate-400"
             />
-            <p className="text-[11px] text-slate-500 mt-1">
-              Please include names and departments so security and front desk can verify attendees.
-            </p>
+            <div className="flex items-center justify-between mt-1">
+              <p className="text-[11px] text-slate-500">
+                {label('field_teammates_help', 'Please include names and departments so security and front desk can verify attendees.')}
+              </p>
+              <span className={`text-[11px] font-mono ${teammates.length > 450 ? 'text-amber-600' : 'text-slate-400'}`}>
+                {teammates.length}/500
+              </span>
+            </div>
           </div>
 
           {/* Error Message */}
@@ -219,7 +228,7 @@ export default function ConfirmBookingModal({
               }`}
             >
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              {loading ? 'Submitting...' : 'Submit Reservation Request'}
+              {loading ? 'Submitting...' : label('btn_reserve_slot', 'Submit Reservation Request')}
             </button>
           </div>
         </form>

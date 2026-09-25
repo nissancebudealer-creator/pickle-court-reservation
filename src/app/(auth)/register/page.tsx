@@ -4,20 +4,47 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { registerAction } from '@/app/actions/auth';
-import { COMPANY_DEPARTMENTS } from '@/lib/types';
 import { UserPlus, AlertCircle, Loader2, User, Mail, Lock, Phone, Briefcase, UserCheck } from 'lucide-react';
+import { useUIProperties } from '@/components/UIPropertiesProvider';
+import { createClient } from '@/lib/supabase/client';
+import { SystemSettings } from '@/lib/types';
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { departments, label } = useUIProperties();
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [department, setDepartment] = useState<string>(COMPANY_DEPARTMENTS[0]);
+  const [department, setDepartment] = useState<string>(departments[0] || 'Engineering');
   const [managerName, setManagerName] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [settings, setSettings] = useState<SystemSettings | null>(null);
+
+  React.useEffect(() => {
+    if (departments.length > 0 && !departments.includes(department)) {
+      setDepartment(departments[0]);
+    }
+  }, [departments]);
+
+  React.useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from('system_settings')
+      .select('*')
+      .eq('id', 1)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) setSettings(data);
+      });
+  }, []);
+
+  const companyName = settings?.company_name || 'COMPANY';
+  const courtBrand = settings?.court_brand || 'PICKLEBALL';
+  const logoUrl = settings?.company_logo_url;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,6 +73,7 @@ export default function RegisterPage() {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center px-4 py-12 bg-gradient-to-b from-slate-50 to-slate-100">
@@ -76,10 +104,10 @@ export default function RegisterPage() {
 
           <div className="space-y-1">
             <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 leading-tight">
-              COMPANY <span className="text-emerald-600">PICKLEBALL</span>
+              {companyName} <span className="text-emerald-600">{courtBrand}</span>
             </h1>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold tracking-wider uppercase border border-emerald-300">
-              <span>STAFF REGISTRATION PORTAL</span>
+              <span>{label('registration_header', 'STAFF REGISTRATION PORTAL')}</span>
             </div>
           </div>
         </div>
@@ -87,9 +115,9 @@ export default function RegisterPage() {
         {/* Card */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-xl p-8 space-y-6">
           <div className="border-b border-slate-100 pb-3">
-            <h2 className="text-lg font-bold text-slate-900">Create Staff Account</h2>
+            <h2 className="text-lg font-bold text-slate-900">{label('registration_header', 'Create Staff Account')}</h2>
             <p className="text-xs text-slate-500 mt-1">
-              Please enter your corporate verification details to register your booking profile.
+              {label('registration_sub', 'Please enter your corporate verification details to register your booking profile.')}
             </p>
           </div>
 
@@ -104,7 +132,7 @@ export default function RegisterPage() {
             {/* Full Name */}
             <div>
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                Full Name *
+                {label('field_full_name', 'Full Name')} *
               </label>
               <div className="relative">
                 <User className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
@@ -122,7 +150,7 @@ export default function RegisterPage() {
             {/* Email Address */}
             <div>
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                Company Email (Username) *
+                {label('field_corporate_email', 'Company Email (Username)')} *
               </label>
               <div className="relative">
                 <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
@@ -140,7 +168,7 @@ export default function RegisterPage() {
             {/* Password */}
             <div>
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                Password *
+                {label('field_password', 'Password')} *
               </label>
               <div className="relative">
                 <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
@@ -159,7 +187,7 @@ export default function RegisterPage() {
             {/* Department Dropdown */}
             <div>
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                Department *
+                {label('field_department', 'Department')} *
               </label>
               <div className="relative">
                 <Briefcase className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
@@ -168,7 +196,7 @@ export default function RegisterPage() {
                   onChange={(e) => setDepartment(e.target.value)}
                   className="w-full text-xs rounded-xl border border-slate-300 pl-9 pr-3.5 py-2.5 bg-white focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                 >
-                  {COMPANY_DEPARTMENTS.map((dept) => (
+                  {departments.map((dept) => (
                     <option key={dept} value={dept}>
                       {dept}
                     </option>
@@ -181,7 +209,7 @@ export default function RegisterPage() {
               {/* Manager Name */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                  Reporting Manager *
+                  {label('field_manager', 'Reporting Manager')} *
                 </label>
                 <div className="relative">
                   <UserCheck className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
@@ -199,7 +227,7 @@ export default function RegisterPage() {
               {/* Mobile Number */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                  Mobile Number *
+                  {label('field_mobile', 'Mobile Number')} *
                 </label>
                 <div className="relative">
                   <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
@@ -221,7 +249,7 @@ export default function RegisterPage() {
               className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm py-3 shadow-md shadow-emerald-600/25 transition-all hover:scale-[1.01] mt-2"
             >
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              <span>{loading ? 'Creating Employee Profile...' : 'Complete Registration'}</span>
+              <span>{loading ? 'Creating Employee Profile...' : label('btn_create_account', 'Complete Registration')}</span>
             </button>
           </form>
 

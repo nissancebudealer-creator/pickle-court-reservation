@@ -1,0 +1,65 @@
+import { UIProperties, COMPANY_DEPARTMENTS } from '@/lib/types';
+
+export const DEFAULT_UI_PROPERTIES: UIProperties = {
+  departments: [...COMPANY_DEPARTMENTS],
+  navigation: {
+    court_schedule: 'Court Schedule',
+    my_reservations: 'My Reservations',
+    admin_portal: 'Facilities Admin Portal',
+    admin_overview: 'Overview',
+    admin_reservations: 'Reservations & Approvals',
+    admin_employees: 'Employee Directory',
+    admin_courts: 'Courts & Slots',
+    admin_settings: 'UI & System Customization',
+  },
+  labels: {
+    booking_header: 'Sign in to your corporate account',
+    booking_sub: 'Enter your corporate credentials to book court sessions and view schedules.',
+    registration_header: 'Corporate Staff Registration',
+    registration_sub: 'Join the corporate pickleball reservation network using your official company email.',
+    facility_subtitle: 'Sports Annex Facilities • Asia/Manila (PHT, UTC+8)',
+    operating_schedule_footer: 'Operating Schedule: 5:30 PM – 8:30 PM (PHT) • Sports Annex',
+    email_footer_notice: 'Timezone: Asia/Manila (PHT, UTC+8)',
+
+    field_full_name: 'Full Name',
+    field_corporate_email: 'Corporate Email Address',
+    field_password: 'Password',
+    field_department: 'Department',
+    field_manager: 'Reporting Manager',
+    field_mobile: 'Mobile Contact Number',
+    field_teammates: 'Co-Players / Teammates',
+    field_teammates_placeholder: 'e.g., Mark Ramos (Engineering), Sarah Lim (Marketing), Kevin Tan (HR)',
+    field_teammates_help: 'Please include names and departments so security and front desk can verify attendees.',
+    field_operating_time: 'Operating Time',
+    field_court_location: 'Court & Location',
+
+    btn_reserve_slot: 'Reserve Slot',
+    btn_withdraw_request: 'Withdraw Request',
+    btn_cancel_booking: 'Cancel Booking',
+    btn_sign_in: 'Sign In to Court Schedule',
+    btn_create_account: 'Create Account & Access Booking',
+  },
+  custom_properties: [
+    {
+      id: 'prop-1',
+      key: 'dress_code',
+      label: 'Dress Code Requirement',
+      value: 'Non-marking court shoes and athletic sportswear required at all times.',
+      description: 'Display in facility guidelines for players',
+    },
+    {
+      id: 'prop-2',
+      key: 'equipment_policy',
+      label: 'Paddles & Balls Policy',
+      value: 'Paddles and Franklin X-40 tournament balls are available at the front desk upon check-in.',
+      description: 'Equipment borrowing rules',
+    },
+    {
+      id: 'prop-3',
+      key: 'cancellation_window',
+      label: 'Cancellation Window',
+      value: 'Please cancel or withdraw at least 2 hours before your scheduled game time.',
+      description: 'Booking courtesy reminder',
+    },
+  ],
+};

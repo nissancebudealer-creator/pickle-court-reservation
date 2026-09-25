@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 interface ApprovalNoticeEmailProps {
   employeeName: string;
@@ -8,6 +8,7 @@ interface ApprovalNoticeEmailProps {
   reservationDate: string;
   slotTime: string;
   teammates: string;
+  companyLabel?: string;
 }
 
 export function ApprovalNoticeEmailHtml({
@@ -18,6 +19,7 @@ export function ApprovalNoticeEmailHtml({
   reservationDate,
   slotTime,
   teammates,
+  companyLabel = 'Company Pickleball',
 }: ApprovalNoticeEmailProps): string {
   return `
 <!DOCTYPE html>
@@ -75,7 +77,7 @@ export function ApprovalNoticeEmailHtml({
     </div>
 
     <div style="background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 16px 32px; text-align: center; font-size: 12px; color: #94a3b8;">
-      © Company Pickleball • Timezone: Asia/Manila (PHT, UTC+8)
+      © ${companyLabel} • Timezone: Asia/Manila (PHT, UTC+8)
     </div>
   </div>
 </body>

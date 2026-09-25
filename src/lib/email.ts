@@ -11,6 +11,11 @@ const resend = resendApiKey && resendApiKey !== 're_123456789' ? new Resend(rese
 const FROM_EMAIL = process.env.EMAIL_FROM_ADDRESS || 'Company Pickleball <onboarding@resend.dev>';
 const ADMIN_EMAIL = process.env.ADMIN_NOTIFICATION_EMAIL || 'facilities@company.com';
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+// Derive a human-readable brand label from the FROM_EMAIL display name or env, falling back gracefully
+const COMPANY_LABEL = process.env.EMAIL_FROM_ADDRESS
+  ? (process.env.EMAIL_FROM_ADDRESS.match(/^([^<]+)/) ?? [])[1]?.trim() || 'Company Pickleball'
+  : 'Company Pickleball';
+
 
 export async function sendEmail({
   to,
@@ -64,6 +69,7 @@ export async function sendRequestSubmittedNotice({
     reservationDate,
     slotTime,
     teammates,
+    companyLabel: COMPANY_LABEL,
   });
 
   return sendEmail({
@@ -102,6 +108,7 @@ export async function sendAdminNewRequestNotice({
     slotTime,
     teammates,
     reviewUrl: `${APP_URL}/admin/reservations`,
+    companyLabel: COMPANY_LABEL,
   });
 
   return sendEmail({
@@ -138,6 +145,7 @@ export async function sendApprovalNotice({
     reservationDate,
     slotTime,
     teammates,
+    companyLabel: COMPANY_LABEL,
   });
 
   return sendEmail({
@@ -169,11 +177,12 @@ export async function sendAutoRejectionNotice({
     reservationDate,
     slotTime,
     bookingUrl: `${APP_URL}/dashboard`,
+    companyLabel: COMPANY_LABEL,
   });
 
   return sendEmail({
     to: employeeEmail,
-    subject: `Slot Update: Reservation Request ${reservationId}`,
+    subject: `Your Reservation Request ${reservationId} Was Not Selected`,
     html,
   });
 }
@@ -205,6 +214,7 @@ export async function sendCancellationNotice({
     slotTime,
     cancelledBy,
     reason,
+    companyLabel: COMPANY_LABEL,
   });
 
   return sendEmail({
@@ -243,11 +253,18 @@ export async function sendRescheduleNotice({
     slotTime: oldSlotTime,
     cancelledBy: 'Facilities Administration',
     isRescheduled: true,
+    // E2 fix: pass old details so employee knows what was moved FROM
+    oldDetails: {
+      courtName: oldCourtName,
+      reservationDate: oldReservationDate,
+      slotTime: oldSlotTime,
+    },
     newDetails: {
       courtName: newCourtName,
       reservationDate: newReservationDate,
       slotTime: newSlotTime,
     },
+    companyLabel: COMPANY_LABEL,
   });
 
   return sendEmail({
@@ -256,3 +273,4 @@ export async function sendRescheduleNotice({
     html,
   });
 }
+

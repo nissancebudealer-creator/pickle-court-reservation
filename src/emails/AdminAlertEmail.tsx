@@ -1,4 +1,3 @@
-import React from 'react';
 
 interface AdminAlertEmailProps {
   employeeName: string;
@@ -10,6 +9,7 @@ interface AdminAlertEmailProps {
   slotTime: string;
   teammates: string;
   reviewUrl: string;
+  companyLabel?: string;
 }
 
 export function AdminAlertEmailHtml({
@@ -22,6 +22,7 @@ export function AdminAlertEmailHtml({
   slotTime,
   teammates,
   reviewUrl,
+  companyLabel = 'Company Pickleball',
 }: AdminAlertEmailProps): string {
   return `
 <!DOCTYPE html>
@@ -84,7 +85,7 @@ export function AdminAlertEmailHtml({
     </div>
 
     <div style="background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 16px 32px; text-align: center; font-size: 12px; color: #94a3b8;">
-      © Company Pickleball Admin Portal
+      © ${companyLabel} Admin Portal
     </div>
   </div>
 </body>

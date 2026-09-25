@@ -18,7 +18,9 @@ import {
   CheckCircle,
   HelpCircle,
   Zap,
+  BookOpen,
 } from 'lucide-react';
+import { useUIProperties } from '@/components/UIPropertiesProvider';
 
 interface DashboardClientProps {
   user: Profile;
@@ -40,6 +42,7 @@ export default function DashboardClient({
   userActiveReservations,
 }: DashboardClientProps) {
   const router = useRouter();
+  const { label, properties } = useUIProperties();
 
   // State
   const [selectedCourtId, setSelectedCourtId] = useState<string>(courts[0]?.id || '');
@@ -126,13 +129,13 @@ export default function DashboardClient({
         <div className="relative z-10 max-w-2xl space-y-2">
           <div className="inline-flex items-center gap-2 rounded-full bg-emerald-900/60 px-3.5 py-1 text-xs font-semibold text-emerald-200 backdrop-blur-sm border border-emerald-500/30">
             <Sparkles className="w-3.5 h-3.5 text-yellow-300" />
-            <span>Sports Annex • Asia/Manila (PHT)</span>
+            <span>{label('facility_subtitle', 'Sports Annex • Asia/Manila (PHT)')}</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
             Reserve Your Pickleball Court
           </h1>
           <p className="text-xs sm:text-sm text-emerald-100 leading-relaxed">
-            Welcome, <strong>{user.full_name}</strong>. Enjoy corporate evening matches from 5:30 PM to 8:30 PM.
+            Welcome, <strong>{user.full_name}</strong>. Enjoy corporate evening matches.
             Submit your reservation request with co-players for Facilities Admin review.
           </p>
         </div>
@@ -293,6 +296,26 @@ export default function DashboardClient({
           })}
         </div>
       </div>
+
+      {/* Facility Guidelines & Custom Policies configured by Admin */}
+      {properties.custom_properties && properties.custom_properties.length > 0 && (
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-3">
+          <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
+            <BookOpen className="w-4 h-4 text-emerald-600" />
+            <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+              Facility Guidelines & Policies
+            </h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {properties.custom_properties.map((prop) => (
+              <div key={prop.id} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                <p className="text-xs font-bold text-slate-900">{prop.label}</p>
+                <p className="text-xs text-slate-600 mt-1 leading-relaxed">{prop.value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Modal: Confirm Booking */}
       {activeSlotModal && (

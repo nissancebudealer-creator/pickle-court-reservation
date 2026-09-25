@@ -3,6 +3,7 @@
 import React from 'react';
 import { CourtSlot, Court, Reservation, CourtBlock } from '@/lib/types';
 import { isSlotPast } from '@/lib/timezone';
+import { useUIProperties } from '@/components/UIPropertiesProvider';
 import {
   Clock,
   CheckCircle2,
@@ -40,6 +41,7 @@ export default function SlotCard({
   onWithdraw,
   onCancelBooking,
 }: SlotCardProps) {
+  const { label } = useUIProperties();
   const isPast = isSlotPast(date, slot.end_time);
 
   // 1. Check if Court or Slot is Blocked / In Maintenance
@@ -175,7 +177,7 @@ export default function SlotCard({
               onClick={() => onCancelBooking(confirmedReservation.id)}
               className="text-xs font-bold text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-1.5 rounded-lg border border-red-200 transition-colors"
             >
-              Cancel Booking
+              {label('btn_cancel_booking', 'Cancel Booking')}
             </button>
           </div>
         )}
@@ -224,7 +226,7 @@ export default function SlotCard({
             onClick={() => onWithdraw(myReservation.id)}
             className="text-xs font-bold text-slate-700 hover:text-red-600 hover:bg-red-50 px-3.5 py-1.5 rounded-lg border border-slate-300 hover:border-red-200 transition-colors"
           >
-            Withdraw Request
+            {label('btn_withdraw_request', 'Withdraw Request')}
           </button>
         </div>
       </div>
@@ -307,7 +309,7 @@ export default function SlotCard({
               : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/20 hover:scale-[1.02]'
           }`}
         >
-          {userHasActiveBooking ? 'Active Booking Limit' : 'Reserve Slot'}
+          {userHasActiveBooking ? 'Active Booking Limit' : label('btn_reserve_slot', 'Reserve Slot')}
           {!userHasActiveBooking && <ArrowRight className="w-3.5 h-3.5" />}
         </button>
       </div>

@@ -18,6 +18,7 @@ import {
   Settings,
   Users,
 } from 'lucide-react';
+import { useUIProperties } from '@/components/UIPropertiesProvider';
 
 interface NavbarProps {
   user: Profile | null;
@@ -35,19 +36,21 @@ export default function Navbar({
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isAdmin = user?.role === 'admin';
+  const { nav } = useUIProperties();
 
   const employeeNavItems = [
-    { label: 'Court Schedule', href: '/dashboard', icon: CalendarDays },
-    { label: 'My Reservations', href: '/my-reservations', icon: Clock },
+    { label: nav('court_schedule', 'Court Schedule'), href: '/dashboard', icon: CalendarDays },
+    { label: nav('my_reservations', 'My Reservations'), href: '/my-reservations', icon: Clock },
   ];
 
   const adminNavItems = [
-    { label: 'Overview', href: '/admin', icon: Layers },
-    { label: 'Approvals & Bookings', href: '/admin/reservations', icon: ShieldCheck },
-    { label: 'Employees', href: '/admin/employees', icon: Users },
-    { label: 'Courts', href: '/admin/courts', icon: Building2 },
-    { label: 'Settings', href: '/admin/settings', icon: Settings },
+    { label: nav('admin_overview', 'Overview'), href: '/admin', icon: Layers },
+    { label: nav('admin_reservations', 'Approvals & Bookings'), href: '/admin/reservations', icon: ShieldCheck },
+    { label: nav('admin_employees', 'Employees'), href: '/admin/employees', icon: Users },
+    { label: nav('admin_courts', 'Courts & Slots'), href: '/admin/courts', icon: Building2 },
+    { label: nav('admin_settings', 'Settings'), href: '/admin/settings', icon: Settings },
   ];
+
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/95 backdrop-blur shadow-sm">
@@ -128,7 +131,7 @@ export default function Navbar({
                     }`}
                   >
                     <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                    Admin Portal
+                    {nav('admin_portal', 'Admin Portal')}
                   </Link>
                 </div>
               )}

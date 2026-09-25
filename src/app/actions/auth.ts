@@ -51,8 +51,21 @@ export async function registerAction(formData: FormData) {
     return { error: 'All fields are required for corporate employee registration.' };
   }
 
+  if (fullName.trim().length < 2) {
+    return { error: 'Full name must be at least 2 characters.' };
+  }
+
   if (password.length < 8) {
     return { error: 'Password must be at least 8 characters long.' };
+  }
+
+  // Validate Philippine mobile number format: +63XXXXXXXXXX or 09XXXXXXXXX
+  const mobileRegex = /^(\+639|09)\d{9}$/;
+  if (!mobileRegex.test(mobileNumber.trim().replace(/\s/g, ''))) {
+    return {
+      error:
+        'Invalid mobile number. Use a Philippine format: 09XXXXXXXXX or +639XXXXXXXXX.',
+    };
   }
 
   const supabase = await createClient();
