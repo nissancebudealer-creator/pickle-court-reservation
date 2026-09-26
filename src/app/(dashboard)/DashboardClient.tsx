@@ -327,25 +327,7 @@ export default function DashboardClient({
         </div>
       </div>
 
-      {/* Facility Guidelines & Custom Policies configured by Admin */}
-      {properties.custom_properties && properties.custom_properties.length > 0 && (
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-3">
-          <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
-            <BookOpen className="w-4 h-4 text-emerald-600" />
-            <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-              Facility Guidelines & Policies
-            </h3>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {properties.custom_properties.map((prop) => (
-              <div key={prop.id} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
-                <p className="text-xs font-bold text-slate-900">{prop.label}</p>
-                <p className="text-xs text-slate-600 mt-1 leading-relaxed">{prop.value}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+
 
       {/* Modal: Confirm Booking */}
       {activeSlotModal && (
