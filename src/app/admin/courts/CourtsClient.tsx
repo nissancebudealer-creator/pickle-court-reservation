@@ -2,8 +2,9 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Court, CourtStatus } from '@/lib/types';
-import { addCourtAction, updateCourtAction, deleteCourtAction } from '@/app/actions/admin';
+import { Court, CourtStatus, CourtBlock } from '@/lib/types';
+import { addCourtAction, updateCourtAction, deleteCourtAction, unblockSlotAction } from '@/app/actions/admin';
+import { formatFriendlyDate } from '@/lib/timezone';
 import {
   Building2,
   Plus,
@@ -15,13 +16,15 @@ import {
   Edit2,
   Save,
   X,
+  Ban,
 } from 'lucide-react';
 
 interface CourtsClientProps {
   initialCourts: Court[];
+  initialBlocks?: CourtBlock[];
 }
 
-export default function CourtsClient({ initialCourts }: CourtsClientProps) {
+export default function CourtsClient({ initialCourts, initialBlocks = [] }: CourtsClientProps) {
   const router = useRouter();
 
   // New Court Form State
@@ -43,6 +46,29 @@ export default function CourtsClient({ initialCourts }: CourtsClientProps) {
 
   // Deletion State
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  // Block removal state
+  const [unblockingBlockId, setUnblockingBlockId] = useState<string | null>(null);
+
+  const handleUnblock = async (blockId: string) => {
+    if (!confirm('Are you sure you want to remove this block and reopen the schedule for bookings?')) {
+      return;
+    }
+
+    setUnblockingBlockId(blockId);
+    try {
+      const res = await unblockSlotAction({ blockId });
+      if (res.error) {
+        alert(res.error);
+      } else {
+        router.refresh();
+      }
+    } catch (err: any) {
+      alert(err?.message || 'Failed to remove block.');
+    } finally {
+      setUnblockingBlockId(null);
+    }
+  };
 
   const handleAddCourt = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -395,6 +421,75 @@ export default function CourtsClient({ initialCourts }: CourtsClientProps) {
           );
         })}
       </div>
+
+      {/* Blocked Schedules / Dates Section */}
+      {initialBlocks && initialBlocks.length > 0 && (
+        <div className="rounded-2xl border border-red-200 bg-white p-6 shadow-sm space-y-4">
+          <div className="flex items-center gap-2.5 border-b border-slate-100 pb-3">
+            <div className="p-2 rounded-xl bg-red-100 text-red-600">
+              <Ban className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-base font-bold text-slate-900">
+                  Facility Blocks & Scheduled Closures ({initialBlocks.length})
+                </h2>
+                <span className="px-2 py-0.5 rounded-full bg-red-100 text-red-700 text-[10px] font-black uppercase tracking-wider">
+                  Closed
+                </span>
+              </div>
+              <p className="text-xs text-slate-500">
+                These dates/slots are blocked from reservations. Click &ldquo;Remove Block&rdquo; to reopen them for bookings.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {initialBlocks.map((block) => (
+              <div
+                key={block.id}
+                className="rounded-xl border border-red-200 bg-red-50/40 p-4 flex flex-col justify-between space-y-3"
+              >
+                <div className="space-y-1.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="font-bold text-red-950 text-sm">
+                      {formatFriendlyDate(block.block_date)} ({block.block_date})
+                    </span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-200/80 text-red-900 uppercase tracking-wider flex-shrink-0">
+                      {block.slot?.display_label || 'Entire Evening'}
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-slate-700">
+                    <strong className="text-slate-900">Scope:</strong>{' '}
+                    <span className="font-semibold text-red-800">{block.court?.name || 'All Courts'}</span>
+                  </p>
+
+                  <p className="text-xs text-slate-600 bg-white/80 p-2.5 rounded-lg border border-red-100 italic">
+                    &ldquo;{block.reason}&rdquo;
+                  </p>
+                </div>
+
+                <div className="pt-2 border-t border-red-100 flex items-center justify-end">
+                  <button
+                    onClick={() => handleUnblock(block.id)}
+                    disabled={unblockingBlockId === block.id}
+                    type="button"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-red-300 hover:bg-red-600 hover:text-white text-red-700 font-bold text-xs shadow-sm transition-all cursor-pointer"
+                  >
+                    {unblockingBlockId === block.id ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Trash2 className="w-3.5 h-3.5" />
+                    )}
+                    <span>Remove Block</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

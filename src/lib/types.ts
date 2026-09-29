@@ -59,6 +59,7 @@ export interface CourtBlock {
   created_by: string | null;
   created_at: string;
   court?: Court | null;
+  slot?: CourtSlot | null;
 }
 
 export interface SystemSettings {

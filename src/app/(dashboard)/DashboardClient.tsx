@@ -1,12 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Court, CourtSlot, Profile, Reservation, CourtBlock, SystemSettings } from '@/lib/types';
 import DateSelector from '@/components/DateSelector';
 import SlotCard from '@/components/SlotCard';
 import ConfirmBookingModal from '@/components/ConfirmBookingModal';
-import RulesGuidelinesModal from '@/components/RulesGuidelinesModal';
 import { cancelReservationAction } from '@/app/actions/reservations';
 import { formatFriendlyDate, getManilaTodayString } from '@/lib/timezone';
 import {
@@ -53,25 +52,6 @@ export default function DashboardClient({
     null
   );
   const [withdrawing, setWithdrawing] = useState<string | null>(null);
-  const [showRulesModal, setShowRulesModal] = useState<boolean>(false);
-
-  useEffect(() => {
-    try {
-      const acknowledged = sessionStorage.getItem('court_rules_acknowledged');
-      if (!acknowledged) {
-        setShowRulesModal(true);
-      }
-    } catch {
-      setShowRulesModal(true);
-    }
-  }, []);
-
-  const handleAcknowledgeRules = () => {
-    try {
-      sessionStorage.setItem('court_rules_acknowledged', 'true');
-    } catch {}
-    setShowRulesModal(false);
-  };
 
   const selectedCourt = courts.find((c) => c.id === selectedCourtId) || courts[0];
   const userHasActiveBooking = userActiveReservations.length >= settings.max_active_reservations_per_employee;
@@ -158,16 +138,6 @@ export default function DashboardClient({
             Welcome, <strong>{user.full_name}</strong>. Enjoy corporate evening matches.
             Submit your reservation request with co-players for Facilities Admin review.
           </p>
-          <div className="pt-2">
-            <button
-              onClick={() => setShowRulesModal(true)}
-              type="button"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-semibold backdrop-blur border border-white/25 transition-all hover:scale-[1.02] cursor-pointer"
-            >
-              <BookOpen className="w-3.5 h-3.5 text-emerald-300" />
-              <span>Court Rules & Guidelines</span>
-            </button>
-          </div>
         </div>
 
         {/* Decorative background shape */}
@@ -327,7 +297,25 @@ export default function DashboardClient({
         </div>
       </div>
 
-
+      {/* Facility Guidelines & Custom Policies configured by Admin */}
+      {properties.custom_properties && properties.custom_properties.length > 0 && (
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-3">
+          <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
+            <BookOpen className="w-4 h-4 text-emerald-600" />
+            <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+              Facility Guidelines & Policies
+            </h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {properties.custom_properties.map((prop) => (
+              <div key={prop.id} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                <p className="text-xs font-bold text-slate-900">{prop.label}</p>
+                <p className="text-xs text-slate-600 mt-1 leading-relaxed">{prop.value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Modal: Confirm Booking */}
       {activeSlotModal && (
@@ -346,13 +334,6 @@ export default function DashboardClient({
           }}
         />
       )}
-
-      {/* Pop-up Modal: Rules & Guidelines Reminder */}
-      <RulesGuidelinesModal
-        isOpen={showRulesModal}
-        onClose={handleAcknowledgeRules}
-        canDismissDirectly={true}
-      />
     </div>
   );
 }

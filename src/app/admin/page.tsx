@@ -2,7 +2,7 @@ import React from 'react';
 import { createClient } from '@/lib/supabase/server';
 import AdminOverviewClient from './AdminOverviewClient';
 import { getManilaTodayString } from '@/lib/timezone';
-import { Court, CourtSlot, Profile, Reservation } from '@/lib/types';
+import { Court, CourtSlot, Profile, Reservation, CourtBlock } from '@/lib/types';
 import { addDays, parseISO } from 'date-fns';
 import { formatManila } from '@/lib/timezone';
 
@@ -82,6 +82,13 @@ export default async function AdminPage() {
     activeCourtsCount,
   };
 
+  // 8. Fetch active court blocks
+  const { data: blocksData } = await supabase
+    .from('court_blocks')
+    .select('*, court:courts(*), slot:court_slots(*)')
+    .order('block_date', { ascending: true });
+  const blocks: CourtBlock[] = blocksData || [];
+
   return (
     <AdminOverviewClient
       metrics={metrics}
@@ -90,6 +97,7 @@ export default async function AdminPage() {
       courts={courts}
       slots={slots}
       employees={employees}
+      blocks={blocks}
     />
   );
 }

@@ -536,6 +536,7 @@ export async function unblockSlotAction({ blockId }: { blockId: string }) {
 
     revalidatePath('/dashboard');
     revalidatePath('/admin');
+    revalidatePath('/admin/courts');
     return { success: true };
   } catch (err: any) {
     return { error: err.message || 'Failed to unblock slot.' };
